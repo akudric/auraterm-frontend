@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="hr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cijene ugradnje klima uređaja | AuraTerm</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <meta name="description" content="Transparentne cijene i paketi ugradnje klima uređaja. Odaberite unaprijed definirani paket ili zatražite prilagođenu ponudu." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --panel:#ffffff;
+      --ink:#1e232c;
+      --muted:#5d6a7a;
+      --line:#e6ebf2;
+      --blue:#1da1f2; /* primary like your CTA */
+      --blue-ink:#0c2236;
+      --radius:18px;
+      --shadow: 0 8px 24px rgba(16,24,40,.08);
+      --max:1200px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif; color:var(--ink); background:var(--bg);}
+    a{color:inherit; text-decoration:none}
+    .container{max-width:var(--max); margin:0 auto; padding: clamp(16px, 2.5vw, 32px);}
+
+    /* Top spacing to match your layout rhythm */
+    .hero{
+      margin-top: clamp(12px, 1.2vw, 18px);
+      background: url('hero-fallback.jpg') center/cover no-repeat, #dbe7f3;
+      border-radius: 14px;
+      min-height: clamp(220px, 40vw, 360px);
+      display:grid; place-items:center; text-align:center; position:relative; overflow:hidden;
+    }
+    .hero::after{
+      content:""; position:absolute; inset:0; background: rgba(0,0,0,.35);
+    }
+    .hero > div{
+      position:relative; z-index:1; padding: 20px;
+    }
+    .hero h1{
+      margin:0 0 14px; color:#fff; font-weight:900; letter-spacing:.2px;
+      font-size: clamp(26px, 5vw, 46px); line-height:1.05;
+      text-shadow: 0 6px 24px rgba(0,0,0,.35);
+    }
+    .btn{
+      appearance:none; border:none; cursor:pointer; font-weight:700;
+      padding:12px 18px; border-radius:12px; background:var(--blue); color:#fff;
+      box-shadow: 0 6px 16px rgba(29,161,242,.28);
+    }
+    .btn.secondary{ background:#ecf6ff; color:#0b3350; border:1px solid #cae7ff; box-shadow:none; }
+
+    /* Section title */
+    .section-title{ margin: 28px 0 8px; font-size: clamp(20px, 3vw, 28px); }
+
+    /* Pricing Grid */
+    .grid{
+      display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+    .card{
+      background: var(--panel);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      display:flex; flex-direction:column; gap:10px;
+      transition: transform .18s ease, box-shadow .18s ease;
+    }
+    .card:hover{ transform: translateY(-4px); box-shadow: 0 12px 28px rgba(16,24,40,.12); }
+    .badge{
+      display:inline-block; align-self:flex-start; font-size:12px; font-weight:800; letter-spacing:.02em;
+      padding:6px 10px; border-radius:999px; color:#0b3350; background:#e8f4ff; border:1px solid #cde8ff;
+    }
+    .card h3{ margin: 2px 0 0; font-size: 20px; }
+    .desc{ color:var(--muted); margin:0; min-height:38px; }
+    .price{ display:flex; align-items:baseline; gap:8px; }
+    .price .amount{ font-size: 34px; font-weight:900; letter-spacing:-.02em; }
+    .price small{ color:var(--muted) }
+
+    .features{ list-style:none; padding:0; margin:6px 0 0; display:grid; gap:8px; }
+    .features li{ display:flex; gap:8px; align-items:flex-start; color:#2d3a4b; }
+    .tick{
+      width:18px; height:18px; flex:0 0 18px; border-radius:6px;
+      background:#e8f8ef; border:1px solid #bfe8cf;
+    }
+    .fine{ color:var(--muted); font-size:13px; margin:4px 0 0; }
+
+    .card .cta{ margin-top:auto; display:flex; gap:10px; flex-wrap:wrap; }
+
+    /* Add-ons and FAQ match the rounded, light style */
+    .panel{ background:var(--panel); border:1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding:16px; }
+    .addons .row{ display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px dashed var(--line); }
+    .addons .row:last-child{ border-bottom:0 }
+    .addons .meta{ color:var(--muted); font-size:14px; }
+
+    details{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:10px; box-shadow: var(--shadow); }
+    summary{ font-weight:700; cursor:pointer; }
+
+    /* Loading skeletons */
+    .skeleton{
+      background: linear-gradient(90deg, #f0f3f8, #e6ebf3, #f0f3f8);
+      background-size: 200% 100%;
+      animation: shimmer 1.2s infinite;
+      border-radius: 10px; height: 160px;
+    }
+    @keyframes shimmer{ 0%{background-position:0 0} 100%{background-position:200% 0} }
+
+    /* Small helper for hero image radius like your home page card */
+    .hero-img-wrapper{
+      border-radius: 18px; overflow:hidden;
+    }
+
+    /* Responsive tweaks */
+    @media (prefers-reduced-motion: reduce){
+      .card, .card:hover{ transition:none; transform:none; }
+      .skeleton{ animation:none; }
+    }
+    /* --- Mobile-first polish --- */
+    :root{
+    --space: clamp(12px, 3.5vw, 24px);
+    }
+
+    /* Container breathing room scales on small screens */
+    .container{ padding: var(--space); }
+
+    /* Hero: guaranteed readable + proper ratio on phones */
+    .hero{
+    min-height: min(56vh, 520px);
+    /* remove hardcoded image if you use <picture> below */
+    background-size: cover;
+    background-position: center;
+    border-radius: 16px;
+    }
+    .hero > div{ padding: 12px var(--space); }
+    .hero h1{
+    font-size: clamp(22px, 7vw, 46px);
+    line-height: 1.1;
+    margin-bottom: 10px;
+    }
+
+    /* Buttons: thumb-friendly */
+    .btn{ min-height: 44px; padding: 12px 18px; font-size: 16px; }
+    .btn.secondary{ border-width: 1px; }
+
+    /* Pricing grid: never squish cards too narrow */
+    .grid{
+    display:grid;
+    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    }
+
+    /* Cards: tighter on phones, lighter shadow */
+    .card{ padding: 14px; box-shadow: 0 6px 18px rgba(16,24,40,.08); }
+    .card h3{ font-size: 18px; }
+    .price .amount{ font-size: clamp(22px, 6.5vw, 34px); }
+
+    /* Lists from Rich Text */
+    .rtx ul{ padding-left: 1.1rem; }
+    .rtx li{ margin: 6px 0; }
+
+    /* CTA row inside card: stack on small screens */
+    .card .cta{ flex-direction: column; }
+    .card .cta .btn,
+    .card .cta .btn.secondary{ width: 100%; text-align: center; }
+
+    /* Panels/add-ons/faq spacing */
+    .panel{ padding: 14px; }
+
+    /* Skeletons: smaller so initial load feels snappy on phones */
+    .skeleton{ height: 120px; }
+
+    /* Reduce motion & heavy effects for accessibility */
+    @media (prefers-reduced-motion: reduce){
+    .card, .card:hover{ transition:none; transform:none; }
+    .skeleton{ animation:none; }
+    }
+
+    /* Super small devices (≤ 370px) — force single column */
+    @media (max-width: 370px){
+    .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HERO (visual match to your home page) -->
+ <!-- Site-wide nav (kept as the single page <header>) -->
+<header class="border-b border-[#e7eff3] px-4 sm:px-10 py-3">
+    <div class="flex items-center justify-between">
+      <div class="flex items-center gap-4 text-[#0e171b]">
+        <div class="w-5 h-5">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M24 45.8096C19.6865 45.8096 15.4698 44.5305 11.8832 42.134C8.29667 39.7376 5.50128 36.3314 3.85056 32.3462C2.19985 28.361 1.76794 23.9758 2.60947 19.7452C3.451 15.5145 5.52816 11.6284 8.57829 8.5783C11.6284 5.52817 15.5145 3.45101 19.7452 2.60948C23.9758 1.76795 28.361 2.19986 32.3462 3.85057C36.3314 5.50129 39.7376 8.29668 42.134 11.8833C44.5305 15.4698 45.8096 19.6865 45.8096 24L24 24L24 45.8096Z" fill="currentColor" />
+          </svg>
+        </div>
+        <a href="../index.html">
+          <h2 class="text-lg font-bold">AuraTerm</h2>
+        </a>
+      </div>
+  
+      <button id="menu-toggle" class="sm:hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+  
+      <nav class="hidden sm:flex items-center gap-9 text-sm font-medium text-[#0e171b]">
+        <a href="pricing.html" class="font-semibold text-[#19a1e5]">Cijenik</a>
+        <a href="#">O nama</a>
+        <a href="../index.html">Kontakt</a>
+        <a href="quote.html">
+          <button class="bg-[#19a1e5] text-white font-bold px-4 h-10 rounded-lg">Besplatna procjena</button>
+        </a>
+      </nav>
+    </div>
+  
+    <nav id="mobile-menu" class="hidden flex flex-col gap-2 mt-4 sm:hidden text-[#0e171b] text-sm font-medium">
+      <a href="pricing.html" class="block font-semibold text-[#19a1e5]">Cijenik</a>
+      <a href="#" class="block">O nama</a>
+      <a href="#contact" class="block">Kontakt</a>
+      <a href="quote.html" class="block">
+        <button class="w-full bg-[#19a1e5] text-white font-bold px-4 h-10 rounded-lg">Besplatna procjena</button>
+      </a>
+    </nav>
+  </header>
+  
+  <script>
+    // Mobile menu toggle
+    document.getElementById('menu-toggle').addEventListener('click', function(){
+      document.getElementById('mobile-menu').classList.toggle('hidden');
+    });
+  </script>
+  
+  <!-- Hero turned into a section (your snippet, unchanged inside) -->
+  <section class="container" aria-label="Hero odjeljak: cijene ugradnje">
+    <div class="hero hero-img-wrapper" role="img" aria-label="Ugradnja klima uređaja">
+      <picture aria-hidden="true">
+        <!-- Mobile first -->
+        <source media="(max-width: 480px)" srcset="/src/assets/cijenik-header.png">
+        <!-- Tablets -->
+        <source media="(max-width: 1024px)" srcset="/src/assets/cijenik-header.png">
+        <!-- Desktop -->
+        <img srcset="/src/assets/cijenik-header.png" alt="" style="position:absolute; inset:0; width:100%; height:100%; object-fit:cover;">
+      </picture>
+      <div>
+        <h1>Prozirne cijene ugradnje klima uređaja</h1>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">
+          Pogledaj pakete
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <main class="container">
+    <h2 id="pricing" class="section-title">Paketi ugradnje</h2>
+
+    <!-- Pricing grid (populated from Strapi) -->
+    <section id="pricing-grid" class="grid" aria-live="polite">
+      <!-- Skeletons while loading -->
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+      <div class="skeleton"></div>
+    </section>
+
+    <!-- Popular add-ons (optional: you can also fetch these from Strapi the same way) -->
+    <h2 class="section-title" style="margin-top:32px">Dodatne usluge</h2>
+    <section class="panel addons" id="addons">
+      <div class="row">
+        <div>
+          <strong>Kondenzat pumpa</strong>
+          <div class="meta">Kada gravitacijski odvod nije moguć (uključena ugradnja)</div>
+        </div>
+        <div><strong>€79</strong></div>
+      </div>
+      <div class="row">
+        <div>
+          <strong>Dodatni metar instalacije</strong>
+          <div class="meta">Cijevi + kabel, cijena po metru</div>
+        </div>
+        <div><strong>€18/m</strong></div>
+      </div>
+      <div class="row">
+        <div>
+          <strong>Nosač vanjske jedinice</strong>
+          <div class="meta">Pocinčani, s antivibracijskim podloškama</div>
+        </div>
+        <div><strong>€59</strong></div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <h2 class="section-title" style="margin-top:32px">Česta pitanja</h2>
+    <section aria-labelledby="faq">
+      <details>
+        <summary>Što je uključeno u “standardnu” ugradnju?</summary>
+        <p>Montaža unutarnje i vanjske jedinice, do 5 m cijevi i kabela, obloga (trunking), bušenje i brtvljenje, puštanje u rad te osnovno čišćenje. Spajanje na postojeću utičnicu je uključeno; novi osigurač je dodatna usluga.</p>
+      </details>
+      <details>
+        <summary>Uklanjate li stare uređaje?</summary>
+        <p>Da. Sigurno pražnjenje rashladnog sredstva i zbrinjavanje nudimo kao dodatnu uslugu u skladu s propisima.</p>
+      </details>
+      <details>
+        <summary>Koliko brzo možete doći?</summary>
+        <p>Tipični rok je 3–7 radnih dana. Za hitne slučajeve pitajte za prvi slobodan termin.</p>
+      </details>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="panel" style="margin:36px 0">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap">
+        <div>
+          <h3 style="margin:0 0 6px">Trebate pomoć oko odabira?</h3>
+          <p style="margin:0; color:var(--muted)">Pošaljite nam nekoliko detalja o prostoru i predložit ćemo pravi paket.</p>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap">
+          <a class="btn" href="quote.html">Brza ponuda</a>
+          <a class="btn secondary" href="/">Povratak na početnu</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // === CONFIG ===
+    const STRAPI_BASE  = 'https://auraterm.onrender.com'.replace(/\/+$/,'');
+    const CONTENT_PATH = 'pricing-options'.replace(/^\/+/, '');
+    const STRAPI_TOKEN = ''; // or your read-only token
+  
+    async function strapiFetch(path, params='') {
+      const url = `${STRAPI_BASE}/api/${String(path).replace(/^\/+/,'')}${params ? `?${params}` : ''}`;
+      const headers = { 'Content-Type': 'application/json' };
+      if (STRAPI_TOKEN) headers.Authorization = `Bearer ${STRAPI_TOKEN}`;
+      const res = await fetch(url, { headers });
+      const txt = await res.text();
+      if (!res.ok) throw new Error(`HTTP ${res.status} ${url}\n${txt}`);
+      return JSON.parse(txt);
+    }
+  
+    // ---- Blocks (Strapi Rich text - Blocks) → HTML (simple) ----
+    function blocksToHtml(blocks = []) {
+      if (!Array.isArray(blocks)) return '';
+      return blocks.map(b => {
+        switch (b.type) {
+          case 'paragraph':
+            return `<p>${inline(b.children)}</p>`;
+          case 'heading':
+            const lvl = Math.min(Math.max(b.level || 2, 2), 4);
+            return `<h${lvl}>${inline(b.children)}</h${lvl}>`;
+          case 'list':
+            const tag = b.format === 'ordered' ? 'ol' : 'ul';
+            return `<${tag}>${(b.children||[]).map(li => `<li>${inline(li.children)}</li>`).join('')}</${tag}>`;
+          case 'quote':
+            return `<blockquote>${inline(b.children)}</blockquote>`;
+          default:
+            return '';
+        }
+      }).join('');
+    }
+    function inline(nodes = []) {
+      return (nodes||[]).map(n => {
+        let t = (n.text || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        if (n.bold)   t = `<strong>${t}</strong>`;
+        if (n.italic) t = `<em>${t}</em>`;
+        if (n.underline) t = `<u>${t}</u>`;
+        if (n.code)   t = `<code>${t}</code>`;
+        if (n.type === 'link' && n.url) t = `<a href="${n.url}" target="_blank" rel="noopener">${inline(n.children)}</a>`;
+        return t;
+      }).join('');
+    }
+  
+    const fmt = new Intl.NumberFormat('hr-HR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 });
+  
+    function planCard(plan){
+      const p = plan.attributes || plan;
+      const title = p.displayName || 'Paket';
+      const slug  = p.uidName || title;
+      const desc  = p.description || '';
+      const price = (typeof p.price === 'number') ? fmt.format(p.price).replace(',00','') : (p.price ?? 'Po dogovoru');
+      const suffix = p.pricesufix ? `<small>${p.pricesufix}</small>` : '';
+      const featured = !!p.isFeatured;
+      const note = p.note ? `<p class="fine">${p.note}</p>` : '';
+      const featuresHTML = p.features ? `<div class="rtx">${blocksToHtml(p.features)}</div>` : '';
+  
+      return `
+        <article class="card" role="listitem">
+          ${featured ? `<span class="badge">Najpopularnije</span>` : ''}
+          <h3>${title}</h3>
+          <p class="desc">${desc}</p>
+          <div class="price"><div class="amount">${price}</div>${suffix}</div>
+          ${featuresHTML}
+          ${note}
+          <div class="cta">
+            <a class="btn" href="/kontakt?paket=${encodeURIComponent(slug)}">Rezerviraj</a>
+            <a class="btn secondary" href="/kontakt?tema=ponuda&paket=${encodeURIComponent(slug)}">Zatraži ponudu</a>
+          </div>
+        </article>`;
+    }
+  
+    async function loadPlans(){
+      const grid = document.getElementById('pricing-grid');
+      try{
+        // ask only for fields you actually have
+        const params = new URLSearchParams({
+          'sort[0]':'sort:asc',
+          'pagination[pageSize]':'12',
+          'fields[0]':'displayName',
+          'fields[1]':'uidName',
+          'fields[2]':'description',
+          'fields[3]':'price',
+          'fields[4]':'pricesufix',
+          'fields[5]':'isFeatured',
+          'fields[6]':'note',
+          'fields[7]':'features'
+        });
+        const data = await strapiFetch(CONTENT_PATH, params.toString());
+        const items = Array.isArray(data.data) ? data.data : (data.data ? [data.data] : []);
+        if (!items.length){
+          grid.innerHTML = `<div class="panel"><p>Trenutno nema objavljenih paketa. Dodajte ih u Strapi CMS.</p></div>`;
+          return;
+        }
+        grid.innerHTML = items.map(planCard).join('');
+      }catch(err){
+        console.error(err);
+        grid.innerHTML = `
+          <div class="panel">
+            <strong>Greška pri učitavanju.</strong>
+            <pre style="white-space:pre-wrap;margin:.5rem 0 0;color:#5d6a7a">${String(err.message)}</pre>
+            <p style="margin:.25rem 0 0; color:var(--muted)">
+              Otvorite <code>${STRAPI_BASE}/api/${CONTENT_PATH}</code> u pregledniku da provjerite atribute.
+            </p>
+          </div>`;
+      }
+    }
+    loadPlans();
+  </script>
+</body>
+</html>
