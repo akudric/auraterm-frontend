@@ -49,7 +49,7 @@
             <a href="#" class="block">O nama</a>
             <a href="#contact" class="block">Kontakt</a>
             <a href="src/pricing.html">
-              <button class="w-full bg-[#19a1e5] text-white font-bold px-4 h-10 rounded-lg">Besplatna procjena</button>
+              <button class="w-full bg-[#19a1e5] text-white font-bold px-4 h-10 rounded-lg">Cijenik</button>
             </a>
             <a href="src/quote.html" class="block">
               <button class="w-full bg-[#19a1e5] text-white font-bold px-4 h-10 rounded-lg">Besplatna procjena</button>
@@ -213,12 +213,13 @@
         menu.classList.toggle("hidden");
       });
     </script>
+    <script src="src/api.js"></script>
 
     <!-- Testimonials Fetch Script -->
     <script>
       document.addEventListener("DOMContentLoaded", async () => {
         try {
-          const res = await fetch("https://ethical-champion-a6f0cd3e63.strapiapp.com/api/our-reviews?populate=avatar");
+          const res = await fetch(`${STRAPI_BASE_URL}${STAPI_OUR_REVIEWS_API_CALL}`);
           const json = await res.json();
           const testimonials = json.data ?? [];
           const container = document.getElementById("testimonial-list");

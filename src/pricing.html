@@ -226,7 +226,7 @@
       </a>
     </nav>
   </header>
-  
+
   <script>
     // Mobile menu toggle
     document.getElementById('menu-toggle').addEventListener('click', function(){
@@ -322,22 +322,28 @@
       </div>
     </section>
   </main>
-
+  <script src="api.js"></script>
   <script>
     // === CONFIG ===
-    const STRAPI_BASE  = 'https://ethical-champion-a6f0cd3e63.strapiapp.com'.replace(/\/+$/,'');
-    const CONTENT_PATH = 'pricing-options'.replace(/^\/+/, '');
     const STRAPI_TOKEN = ''; // or your read-only token
   
-    async function strapiFetch(path, params='') {
-      const url = `${STRAPI_BASE}/api/${String(path).replace(/^\/+/,'')}${params ? `?${params}` : ''}`;
-      const headers = { 'Content-Type': 'application/json' };
-      if (STRAPI_TOKEN) headers.Authorization = `Bearer ${STRAPI_TOKEN}`;
-      const res = await fetch(url, { headers });
-      const txt = await res.text();
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${url}\n${txt}`);
-      return JSON.parse(txt);
-    }
+    async function strapiFetch(endpointPath) {
+        const url = `${STRAPI_BASE_URL}${endpointPath}`;
+        const headers = { 'Content-Type': 'application/json' };
+
+        if (STRAPI_TOKEN) {
+            headers.Authorization = `Bearer ${STRAPI_TOKEN}`;
+        }
+
+        const res = await fetch(url, { headers });
+        const txt = await res.text();
+
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status} ${url}\n${txt}`);
+        }
+
+        return JSON.parse(txt);
+}
   
     // ---- Blocks (Strapi Rich text - Blocks) → HTML (simple) ----
     function blocksToHtml(blocks = []) {
@@ -399,40 +405,51 @@
         </article>`;
     }
   
-    async function loadPlans(){
-      const grid = document.getElementById('pricing-grid');
-      try{
-        // ask only for fields you actually have
-        const params = new URLSearchParams({
-          'sort[0]':'sort:asc',
-          'pagination[pageSize]':'12',
-          'fields[0]':'displayName',
-          'fields[1]':'uidName',
-          'fields[2]':'description',
-          'fields[3]':'price',
-          'fields[4]':'pricesufix',
-          'fields[5]':'isFeatured',
-          'fields[6]':'note',
-          'fields[7]':'features'
-        });
-        const data = await strapiFetch(CONTENT_PATH, params.toString());
-        const items = Array.isArray(data.data) ? data.data : (data.data ? [data.data] : []);
-        if (!items.length){
-          grid.innerHTML = `<div class="panel"><p>Trenutno nema objavljenih paketa. Dodajte ih u Strapi CMS.</p></div>`;
-          return;
+    async function loadPlans() {
+        const grid = document.getElementById('pricing-grid');
+
+        try {
+            // Only request the fields you need
+            const params = new URLSearchParams({
+            'sort[0]': 'sort:asc',
+            'pagination[pageSize]': '12',
+            'fields[0]': 'displayName',
+            'fields[1]': 'uidName',
+            'fields[2]': 'description',
+            'fields[3]': 'price',
+            'fields[4]': 'pricesufix',
+            'fields[5]': 'isFeatured',
+            'fields[6]': 'note',
+            'fields[7]': 'features',
+            });
+
+            // Pass the endpoint and query string to strapiFetch
+            const data = await strapiFetch(`${STRAPI_PRICES_API_CALL}?${params.toString()}`);
+
+            const items = Array.isArray(data.data)
+            ? data.data
+            : (data.data ? [data.data] : []);
+
+            if (!items.length) {
+            grid.innerHTML = `
+                <div class="panel">
+                <p>Trenutno nema objavljenih paketa. Dodajte ih u Strapi CMS.</p>
+                </div>`;
+            return;
+            }
+
+            grid.innerHTML = items.map(planCard).join('');
+        } catch (err) {
+            console.error(err);
+            grid.innerHTML = `
+            <div class="panel">
+                <strong>Greška pri učitavanju.</strong>
+                <pre style="white-space:pre-wrap;margin:.5rem 0 0;color:#5d6a7a">${String(err.message)}</pre>
+                <p style="margin:.25rem 0 0; color:var(--muted)">
+                Otvorite <code>${STRAPI_BASE_URL}${STRAPI_PRICES_API_CALL}</code> u pregledniku da provjerite atribute.
+                </p>
+            </div>`;
         }
-        grid.innerHTML = items.map(planCard).join('');
-      }catch(err){
-        console.error(err);
-        grid.innerHTML = `
-          <div class="panel">
-            <strong>Greška pri učitavanju.</strong>
-            <pre style="white-space:pre-wrap;margin:.5rem 0 0;color:#5d6a7a">${String(err.message)}</pre>
-            <p style="margin:.25rem 0 0; color:var(--muted)">
-              Otvorite <code>${STRAPI_BASE}/api/${CONTENT_PATH}</code> u pregledniku da provjerite atribute.
-            </p>
-          </div>`;
-      }
     }
     loadPlans();
   </script>
